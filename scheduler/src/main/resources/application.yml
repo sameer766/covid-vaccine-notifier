@@ -1,0 +1,3 @@
+covid:
+  ribbon:
+    listOfServers: localhost:8081
