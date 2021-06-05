@@ -1,4 +1,4 @@
-# covid-vaccine-notiifier
+# covid-vaccine-notifier
 This is a application which notifies user about vaccine via sms by taking pincode and phone number as input primarily. 
 Scheduler microservice is entry point where a person schedules sms whenver slot is available by giving pincode and phone number as input primarily.
 This microservice then call covid data fetcher service which fetch list of covid centre for that pincode
