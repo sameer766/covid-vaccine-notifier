@@ -8,7 +8,7 @@ sample input
 
 {
   "callbackData": "string",
-  "cronExpression": "0/10 * * * * ? *",
+  "cronExpression": "0/55 * * * * ? *",
   "initalOffset": 0,
   "remainingFireCount": 0,
   "repeatIntervalMS": 0,
@@ -16,6 +16,8 @@ sample input
   "totalFireCount": 0,
   "vaccineRequest":{
  "pincode":"",
- "userPhoneNumber":""
+ "userName":"sameer pande",
+ "userPhoneNumber":"",
+ "userEmail":""
   }
 }
