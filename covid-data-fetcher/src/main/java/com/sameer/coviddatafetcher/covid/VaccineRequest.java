@@ -14,4 +14,6 @@ import java.io.Serializable;
 public class VaccineRequest implements Serializable {
     private String pincode;
     private String userPhoneNumber;
+    private String userEmail;
+    private String userName;
 }

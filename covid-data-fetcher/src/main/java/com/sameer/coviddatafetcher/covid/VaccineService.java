@@ -2,6 +2,8 @@ package com.sameer.coviddatafetcher.covid;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sameer.coviddatafetcher.client.EmailClient;
+import com.sameer.coviddatafetcher.client.EmailRequest;
 import com.sameer.coviddatafetcher.client.SmsRequest;
 import com.sameer.coviddatafetcher.client.TwilioClient;
 import org.apache.http.Header;
@@ -23,6 +25,9 @@ public class VaccineService {
 
     @Autowired
     TwilioClient twilioClient;
+
+    @Autowired
+    EmailClient emailClient;
 
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
     ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -83,8 +88,27 @@ public class VaccineService {
 
     public void notifyUser( VaccineRequest vaccineRequest,VaccineResponse vaccineResponse) throws IOException {
         List<String> slots = vaccineResponse.getSlots();
-        String message = String.format("Hi Sameer Vaccine is available on date %s with slots %s of vaccine %s at pincode %s", vaccineResponse.getDate(), slots.toString(), vaccineResponse.getVaccine(), vaccineRequest.getPincode());
+        String message = String.format(
+            "Hi "+ getUserNameCamelCase(vaccineRequest.getUserName())+" Vaccine is available on date %s with slots %s of vaccine %s at pincode %s",
+            vaccineResponse.getDate(),
+            slots.toString(),
+            vaccineResponse.getVaccine(),
+            vaccineRequest.getPincode());
         SmsRequest smsRequest = new SmsRequest(vaccineRequest.getUserPhoneNumber(), message);
         twilioClient.sendSms(smsRequest);
+        EmailRequest emailRequest=new EmailRequest(vaccineRequest.getUserEmail(), message, vaccineRequest.getUserEmail());
+        emailClient.sendEmail(emailRequest);
+    }
+
+    private String getUserNameCamelCase(String userName) {
+        String[] userString=userName.split(" ");
+        StringBuilder stringBuilder=new StringBuilder();
+        for(String user:userString)
+        {
+            stringBuilder.append(Character.toUpperCase(user.charAt(0)));
+            stringBuilder.append(user.substring(1));
+            stringBuilder.append(" ");
+        }
+        return stringBuilder.substring(0,stringBuilder.length()-1);
     }
 }
