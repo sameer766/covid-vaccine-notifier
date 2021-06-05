@@ -1,4 +1,4 @@
-package com.sameer.coviddatafetcher.covid;
+package com.sameer.coviddatafetcher.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

@@ -1,7 +1,6 @@
 package com.sameer.scheduler.controller;
 
-import com.sameer.scheduler.client.ClientClass;
-import com.sameer.scheduler.info.TimerInfo;
+import com.sameer.scheduler.model.TimerInfo;
 import com.sameer.scheduler.service.TimerService;
 import java.util.List;
 import org.quartz.SchedulerException;

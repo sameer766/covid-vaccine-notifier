@@ -1,6 +1,6 @@
 package com.sameer.scheduler.service;
 
-import com.sameer.scheduler.info.TimerInfo;
+import com.sameer.scheduler.model.TimerInfo;
 import com.sameer.scheduler.utils.TimerUtils;
 import java.util.List;
 import java.util.Objects;

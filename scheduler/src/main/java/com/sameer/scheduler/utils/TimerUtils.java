@@ -1,6 +1,6 @@
 package com.sameer.scheduler.utils;
 
-import com.sameer.scheduler.info.TimerInfo;
+import com.sameer.scheduler.model.TimerInfo;
 import org.quartz.*;
 
 

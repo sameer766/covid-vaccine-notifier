@@ -1,6 +1,6 @@
 package com.sameer.scheduler.client;
 
-import com.sameer.scheduler.info.TimerInfo;
+import com.sameer.scheduler.model.TimerInfo;
 import com.sameer.scheduler.job.Job1;
 import com.sameer.scheduler.job.Job2;
 import com.sameer.scheduler.service.TimerService;

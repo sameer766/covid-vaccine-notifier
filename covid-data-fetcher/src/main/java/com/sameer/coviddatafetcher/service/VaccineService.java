@@ -1,10 +1,9 @@
-package com.sameer.coviddatafetcher.covid;
+package com.sameer.coviddatafetcher.service;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sameer.coviddatafetcher.client.EmailClient;
-import com.sameer.coviddatafetcher.client.EmailRequest;
-import com.sameer.coviddatafetcher.client.SmsRequest;
+import com.sameer.coviddatafetcher.model.*;
 import com.sameer.coviddatafetcher.client.TwilioClient;
 import org.apache.http.Header;
 import org.apache.http.HttpEntity;

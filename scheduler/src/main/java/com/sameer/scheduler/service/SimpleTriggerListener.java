@@ -1,6 +1,6 @@
 package com.sameer.scheduler.service;
 
-import com.sameer.scheduler.info.TimerInfo;
+import com.sameer.scheduler.model.TimerInfo;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.Trigger;

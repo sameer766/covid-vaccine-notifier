@@ -1,7 +1,7 @@
 package com.sameer.scheduler.job;
 
 import com.sameer.scheduler.client.CovidClient;
-import com.sameer.scheduler.info.TimerInfo;
+import com.sameer.scheduler.model.TimerInfo;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;

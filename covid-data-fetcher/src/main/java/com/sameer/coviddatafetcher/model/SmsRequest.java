@@ -1,4 +1,4 @@
-package com.sameer.coviddatafetcher.client;
+package com.sameer.coviddatafetcher.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

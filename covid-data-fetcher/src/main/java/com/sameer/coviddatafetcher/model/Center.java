@@ -1,4 +1,4 @@
-package com.sameer.coviddatafetcher.covid;
+package com.sameer.coviddatafetcher.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;

@@ -1,4 +1,4 @@
-package com.sameer.scheduler.client;
+package com.sameer.scheduler.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

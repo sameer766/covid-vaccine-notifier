@@ -1,6 +1,6 @@
-package com.sameer.scheduler.info;
+package com.sameer.scheduler.model;
 
-import com.sameer.scheduler.client.VaccineRequest;
+import com.sameer.scheduler.model.VaccineRequest;
 import lombok.Getter;
 import lombok.Setter;
 

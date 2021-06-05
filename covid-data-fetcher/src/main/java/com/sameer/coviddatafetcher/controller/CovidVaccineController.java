@@ -1,8 +1,8 @@
 package com.sameer.coviddatafetcher.controller;
 
-import com.sameer.coviddatafetcher.covid.VaccineRequest;
-import com.sameer.coviddatafetcher.covid.VaccineResponse;
-import com.sameer.coviddatafetcher.covid.VaccineService;
+import com.sameer.coviddatafetcher.model.VaccineRequest;
+import com.sameer.coviddatafetcher.model.VaccineResponse;
+import com.sameer.coviddatafetcher.service.VaccineService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;

@@ -1,6 +1,6 @@
 package com.sameer.scheduler.job;
 
-import com.sameer.scheduler.info.TimerInfo;
+import com.sameer.scheduler.model.TimerInfo;
 import java.time.LocalDateTime;
 import lombok.extern.slf4j.Slf4j;
 import org.quartz.Job;
