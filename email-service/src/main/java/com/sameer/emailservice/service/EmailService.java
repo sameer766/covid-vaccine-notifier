@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
+//@EnableConfigurationProperties(AwsProperties.class)
 public class EmailService {
   @Value("${aws.accessKeyId}")
   private String accessKey;

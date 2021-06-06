@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: twilio-service
+  cloud:
+    vault:
+      uri: http://localhost:8200
+      token: 00000000-0000-0000-0000-000000000000
+      scheme: http
+      kv:
+      enabled: true
+server.port: 8082

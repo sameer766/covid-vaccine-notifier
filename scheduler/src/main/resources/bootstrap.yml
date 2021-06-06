@@ -1,0 +1,23 @@
+covid:
+  ribbon:
+    listOfServers: localhost:8081
+spring:
+  application:
+    name: scheduler
+  quartz:
+    job-store-type: jdbc
+  datasource:
+    username: sameer
+    jdbc-url: jdbc:mysql://localhost:3306/QUARTZ_SCHEMA
+    driverClassName: com.mysql.cj.jdbc.Driver
+  cloud:
+    vault:
+      uri: http://localhost:8200
+      token: 00000000-0000-0000-0000-000000000000
+      scheme: http
+      kv:
+      enabled: true
+server.port: 8080
+using:
+  spring:
+    schedulerFactory: true
