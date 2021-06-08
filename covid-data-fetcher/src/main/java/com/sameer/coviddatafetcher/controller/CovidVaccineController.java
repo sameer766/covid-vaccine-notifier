@@ -3,7 +3,9 @@ package com.sameer.coviddatafetcher.controller;
 import com.sameer.coviddatafetcher.model.VaccineRequest;
 import com.sameer.coviddatafetcher.model.VaccineResponse;
 import com.sameer.coviddatafetcher.service.VaccineService;
+import java.text.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -18,7 +20,7 @@ public class CovidVaccineController {
 
 
     @PostMapping("/available-vaccine")
-    public void getAvailableVaccine(@RequestBody VaccineRequest vaccineRequest) throws IOException {
+    public void getAvailableVaccine(@RequestBody VaccineRequest vaccineRequest) throws IOException, ParseException {
 
         VaccineResponse vaccineResponse = vaccineService.getVaccineDetailsIfPresent(vaccineRequest);
         if (vaccineResponse != null) {

@@ -1,0 +1,21 @@
+twilio.ribbon.listOfServers: localhost:8082
+email.ribbon.listOfServers: localhost:8083
+server.port: 8081
+spring:
+  application:
+    name: covid-data-fetcher
+  cloud:
+    vault:
+      uri: http://localhost:8200
+      token: 00000000-0000-0000-0000-000000000000
+      scheme: http
+      kv:
+      enabled: true
+  datasource:
+    username: root
+    url: jdbc:mysql://localhost:3306/covid_data
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    driverClassName: com.mysql.cj.jdbc.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
