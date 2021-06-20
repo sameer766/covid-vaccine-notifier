@@ -6,8 +6,6 @@ import com.sameer.coviddatafetcher.client.EmailClient;
 import com.sameer.coviddatafetcher.client.TwilioClient;
 import com.sameer.coviddatafetcher.model.*;
 import com.sameer.coviddatafetcher.repo.ContentRepo;
-import io.github.resilience4j.circuitbreaker.CircuitBreaker;
-import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
 import java.io.IOException;
 import java.text.ParseException;
 import java.time.LocalDate;
@@ -22,6 +20,8 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JCircuitBreaker;
+import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JCircuitBreakerFactory;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -41,17 +41,15 @@ public class VaccineService {
   @Autowired
   ContentRepo contentRepo;
 
-  //  @Autowired
-//  Resilience4JCircuitBreakerFactory resilience4JCircuitBreakerFactory;
-  CircuitBreakerRegistry circuitBreakerRegistry = CircuitBreakerRegistry.ofDefaults();
+  @Autowired
+  Resilience4JCircuitBreakerFactory resilience4JCircuitBreakerFactory;
 
   private final CloseableHttpClient httpClient = HttpClients.createDefault();
   ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
                                                            false);
 
 
-  public VaccineResponse getVaccineDetailsIfPresent(VaccineRequest vaccineRequest)
-      throws ParseException {
+  public VaccineResponse getVaccineDetailsIfPresent(VaccineRequest vaccineRequest) throws ParseException {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     String todaysDate = formatter.format(LocalDate.now());
@@ -117,13 +115,8 @@ public class VaccineService {
 
 
   public boolean notifyUser(VaccineRequest vaccineRequest, VaccineResponse vaccineResponse)
-
-      throws IOException {
-
-
-//    Resilience4JCircuitBreaker notify = resilience4JCircuitBreakerFactory.create("notify");
-
-
+  {
+    Resilience4JCircuitBreaker notify = resilience4JCircuitBreakerFactory.create("notify");
 
     List<String> slots = vaccineResponse.getSlots();
     String message = String.format(
@@ -134,20 +127,31 @@ public class VaccineService {
         slots.toString(),
         vaccineResponse.getVaccine(),
         vaccineRequest.getPincode());
+
+
     SmsRequest smsRequest = new SmsRequest(vaccineRequest.getUserPhoneNumber(), message);
-//    notify.run(() -> twilioClient.sendSms(smsRequest), throwable -> handleErrorCase());
-    CircuitBreakerRegistry registry = CircuitBreakerRegistry.ofDefaults();
-    final CircuitBreaker circuitBreaker = registry.circuitBreaker("dd");
+    notify.run(() -> twilioClient.sendSms(smsRequest),
+                                   throwable -> handleErrorCaseForPhone(vaccineRequest));
 
-
-//    circuitBreaker.executeSupplier(()-> twilioClient.sendSms(smsRequest));
-    twilioClient.sendSms(smsRequest);
 
     EmailRequest emailRequest = new EmailRequest(vaccineRequest.getUserEmail(),
                                                  message,
                                                  vaccineRequest.getUserEmail());
-    emailClient.sendEmail(emailRequest);
+  notify.run(() -> emailClient.sendEmail(emailRequest),
+                                    throwable -> handleErrorCaseForEmail(vaccineRequest));
+
     return true;
+  }
+
+  private boolean handleErrorCaseForPhone(VaccineRequest vaccineRequest) {
+
+    log.info("Sms not sent for user :"+vaccineRequest.getUserName());
+    return false;
+  }
+
+  private boolean handleErrorCaseForEmail(VaccineRequest vaccineRequest) {
+    log.info("Email not sent :"+vaccineRequest.getUserName());
+    return false;
   }
 
 

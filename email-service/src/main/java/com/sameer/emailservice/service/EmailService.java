@@ -20,7 +20,7 @@ public class EmailService {
   private static final String FROM = "pandesameer76@gmail.com";
 
 
-  public void sendEmail(EmailRequest emailRequest) {
+  public boolean sendEmail(EmailRequest emailRequest) {
     System.setProperty("aws.accessKeyId", accessKey);
     System.setProperty("aws.secretKey", awsSecretKey);
     AmazonSimpleEmailService amazonSimpleEmailService = AmazonSimpleEmailServiceClientBuilder.standard()
@@ -40,6 +40,7 @@ public class EmailService {
         .withSource(FROM);
     amazonSimpleEmailService.sendEmail(request);
     System.out.println("Email sent!");
+    return true;
   }
 
 }

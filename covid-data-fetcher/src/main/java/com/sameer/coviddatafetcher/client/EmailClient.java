@@ -8,5 +8,5 @@ import org.springframework.web.bind.annotation.RequestBody;
 @FeignClient(name = "email-api", url = "${email.ribbon.listOfServers}")
 public interface EmailClient {
   @PostMapping("/send-email")
-  public void sendEmail(@RequestBody EmailRequest emailRequest);
+  public boolean sendEmail(@RequestBody EmailRequest emailRequest);
 }

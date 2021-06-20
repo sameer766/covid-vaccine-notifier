@@ -19,7 +19,7 @@ public class TwilioSmsSender implements SmsSender {
   }
 
   @Override
-  public void sendSms(SmsRequest smsRequest) {
+  public boolean sendSms(SmsRequest smsRequest) {
     if(isPhoneNumberValid(smsRequest.getPhoneNumber()))
     {
       Message message = Message.creator(
@@ -27,7 +27,7 @@ public class TwilioSmsSender implements SmsSender {
           new com.twilio.type.PhoneNumber(twilioConfiguration.getTrialNumber()),
           smsRequest.getMessage()).create();
       log.info(message+" message sent ");
-
+      return true;
     }else {
       throw new IllegalArgumentException("Phone number is not valid");
     }

@@ -1,5 +1,5 @@
 package com.sameer.twilio.service;
 
 public interface SmsSender {
-  public void sendSms(SmsRequest smsRequest);
+  public boolean sendSms(SmsRequest smsRequest);
 }

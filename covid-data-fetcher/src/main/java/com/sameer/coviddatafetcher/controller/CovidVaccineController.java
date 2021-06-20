@@ -15,25 +15,29 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class CovidVaccineController {
 
-    private static final String EMPTY="";
+  private static final String EMPTY = "";
 
-    @Autowired
-    VaccineService vaccineService;
+  @Autowired
+  VaccineService vaccineService;
 
-    @PostMapping("/available-vaccine")
-    public Response getAvailableVaccine(@RequestBody VaccineRequest vaccineRequest) throws IOException, ParseException {
+  @PostMapping("/available-vaccine")
+  public Response getAvailableVaccine(@RequestBody VaccineRequest vaccineRequest) throws IOException, ParseException {
 
-
-        VaccineResponse vaccineResponse = vaccineService.getVaccineDetailsIfPresent(vaccineRequest);
-        if (vaccineResponse != null) {
-            final boolean result = vaccineService.notifyUser(vaccineRequest, vaccineResponse);
-            if (result) {
-                return new Response(EMPTY, OperationStatus.SUCCESS.name());
-            } else {
-                return new Response("error in sending notification", OperationStatus.ERROR.name());
-            }
-        } else {
-            return new Response(EMPTY, "Vaccine Not present");
-        }
+    VaccineResponse vaccineResponse = vaccineService.getVaccineDetailsIfPresent(vaccineRequest);
+    if (vaccineResponse != null) {
+      boolean result = false;
+      try {
+        result = vaccineService.notifyUser(vaccineRequest, vaccineResponse);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+      if (result) {
+        return new Response(EMPTY, OperationStatus.SUCCESS.name());
+      } else {
+        return new Response("error in sending notification", OperationStatus.ERROR.name());
+      }
+    } else {
+      return new Response(EMPTY, "Vaccine Not present");
     }
+  }
 }

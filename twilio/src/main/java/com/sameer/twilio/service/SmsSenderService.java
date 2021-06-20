@@ -12,8 +12,8 @@ public class SmsSenderService {
   public SmsSenderService(@Qualifier("twilio") TwilioSmsSender smsSender) {
     this.smsSender = smsSender;
   }
-  public void sendSms(SmsRequest smsRequest)
-  {
-    smsSender.sendSms(smsRequest);
+
+  public boolean sendSms(SmsRequest smsRequest) {
+    return smsSender.sendSms(smsRequest);
   }
 }
