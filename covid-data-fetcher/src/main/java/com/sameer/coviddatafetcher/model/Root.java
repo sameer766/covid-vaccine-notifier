@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class  Root {
+public class Root {
     public List<Center> centers;
+    public String errorCode;
+    public String error;
 }

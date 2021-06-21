@@ -7,7 +7,6 @@ import com.sameer.coviddatafetcher.client.TwilioClient;
 import com.sameer.coviddatafetcher.model.*;
 import com.sameer.coviddatafetcher.repo.ContentRepo;
 import java.io.IOException;
-import java.text.ParseException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -49,7 +48,7 @@ public class VaccineService {
                                                            false);
 
 
-  public VaccineResponse getVaccineDetailsIfPresent(VaccineRequest vaccineRequest) throws ParseException {
+  public VaccineResponse getVaccineDetailsIfPresent(VaccineRequest vaccineRequest) throws Exception {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     String todaysDate = formatter.format(LocalDate.now());
@@ -83,6 +82,9 @@ public class VaccineService {
         String result = EntityUtils.toString(entity);
         Root root = objectMapper.readValue(result, Root.class);
 
+        if (root.getError() != null) {
+          throw new Exception(root.getError());
+        }
         boolean isAvailable = false;
         for (int i = 0; i < root.centers.size(); i++) {
           List<Session> sessions = root.centers.get(i).getSessions();
@@ -114,8 +116,7 @@ public class VaccineService {
   }
 
 
-  public boolean notifyUser(VaccineRequest vaccineRequest, VaccineResponse vaccineResponse)
-  {
+  public boolean notifyUser(VaccineRequest vaccineRequest, VaccineResponse vaccineResponse) {
     Resilience4JCircuitBreaker notify = resilience4JCircuitBreakerFactory.create("notify");
 
     List<String> slots = vaccineResponse.getSlots();
@@ -130,27 +131,25 @@ public class VaccineService {
 
 
     SmsRequest smsRequest = new SmsRequest(vaccineRequest.getUserPhoneNumber(), message);
-    notify.run(() -> twilioClient.sendSms(smsRequest),
-                                   throwable -> handleErrorCaseForPhone(vaccineRequest));
+    notify.run(() -> twilioClient.sendSms(smsRequest), throwable -> handleErrorCaseForPhone(vaccineRequest));
 
 
     EmailRequest emailRequest = new EmailRequest(vaccineRequest.getUserEmail(),
                                                  message,
                                                  vaccineRequest.getUserEmail());
-  notify.run(() -> emailClient.sendEmail(emailRequest),
-                                    throwable -> handleErrorCaseForEmail(vaccineRequest));
+    notify.run(() -> emailClient.sendEmail(emailRequest), throwable -> handleErrorCaseForEmail(vaccineRequest));
 
     return true;
   }
 
   private boolean handleErrorCaseForPhone(VaccineRequest vaccineRequest) {
 
-    log.info("Sms not sent for user :"+vaccineRequest.getUserName());
+    log.info("Sms not sent for user :" + vaccineRequest.getUserName());
     return false;
   }
 
   private boolean handleErrorCaseForEmail(VaccineRequest vaccineRequest) {
-    log.info("Email not sent :"+vaccineRequest.getUserName());
+    log.info("Email not sent :" + vaccineRequest.getUserName());
     return false;
   }
 

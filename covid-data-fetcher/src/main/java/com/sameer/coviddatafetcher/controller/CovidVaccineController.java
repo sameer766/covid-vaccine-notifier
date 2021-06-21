@@ -21,7 +21,7 @@ public class CovidVaccineController {
   VaccineService vaccineService;
 
   @PostMapping("/available-vaccine")
-  public Response getAvailableVaccine(@RequestBody VaccineRequest vaccineRequest) throws IOException, ParseException {
+  public Response getAvailableVaccine(@RequestBody VaccineRequest vaccineRequest) throws Exception {
 
     VaccineResponse vaccineResponse = vaccineService.getVaccineDetailsIfPresent(vaccineRequest);
     if (vaccineResponse != null) {
