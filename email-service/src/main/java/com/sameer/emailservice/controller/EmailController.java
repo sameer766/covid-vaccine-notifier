@@ -15,6 +15,11 @@ public class EmailController {
 
   @PostMapping("/send-email")
   public boolean sendEmail(@RequestBody EmailRequest emailRequest) {
-    return emailService.sendEmail(emailRequest);
+    try {
+      return emailService.sendEmail(emailRequest);
+    } catch (InterruptedException e) {
+      e.printStackTrace();
+      return false;
+    }
   }
 }

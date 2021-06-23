@@ -3,6 +3,8 @@ package com.sameer.twilio.service;
 
 import com.sameer.twilio.configuration.TwilioConfiguration;
 import com.twilio.rest.api.v2010.account.Message;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -34,6 +36,12 @@ public class TwilioSmsSender implements SmsSender {
   }
 
   private boolean isPhoneNumberValid(String phoneNumber) {
-    return true;
+
+    String patternString = "^[789]\\d{9}$";
+
+    Pattern pattern = Pattern.compile(patternString);
+
+    Matcher matcher = pattern.matcher(phoneNumber.substring(3));
+    return matcher.matches();
   }
 }

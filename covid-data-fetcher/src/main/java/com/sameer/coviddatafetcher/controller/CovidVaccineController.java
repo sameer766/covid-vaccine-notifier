@@ -5,8 +5,6 @@ import com.sameer.coviddatafetcher.model.Response;
 import com.sameer.coviddatafetcher.model.VaccineRequest;
 import com.sameer.coviddatafetcher.model.VaccineResponse;
 import com.sameer.coviddatafetcher.service.VaccineService;
-import java.io.IOException;
-import java.text.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -34,7 +32,7 @@ public class CovidVaccineController {
       if (result) {
         return new Response(EMPTY, OperationStatus.SUCCESS.name());
       } else {
-        return new Response("error in sending notification", OperationStatus.ERROR.name());
+        return new Response("Error in sending notification", OperationStatus.ERROR.name());
       }
     } else {
       return new Response(EMPTY, "Vaccine Not present");

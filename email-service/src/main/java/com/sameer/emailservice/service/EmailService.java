@@ -4,7 +4,10 @@ import com.amazonaws.regions.Regions;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailService;
 import com.amazonaws.services.simpleemail.AmazonSimpleEmailServiceClientBuilder;
 import com.amazonaws.services.simpleemail.model.*;
+import com.sameer.emailservice.model.EmailObject;
 import com.sameer.emailservice.model.EmailRequest;
+import com.sameer.emailservice.repository.EmailRepo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +19,13 @@ public class EmailService {
   @Value("${aws.secretKey}")
   private String awsSecretKey;
 
+  @Autowired
+  EmailRepo emailRepo;
+
   private static final String SUBJECT = "Covid Vaccine Available";
   private static final String FROM = "pandesameer76@gmail.com";
 
-
-  public boolean sendEmail(EmailRequest emailRequest) {
+  public boolean sendEmail(EmailRequest emailRequest) throws InterruptedException {
     System.setProperty("aws.accessKeyId", accessKey);
     System.setProperty("aws.secretKey", awsSecretKey);
     AmazonSimpleEmailService amazonSimpleEmailService = AmazonSimpleEmailServiceClientBuilder.standard()
@@ -38,8 +43,12 @@ public class EmailService {
                          .withSubject(new Content()
                                           .withCharset("UTF-8").withData(SUBJECT)))
         .withSource(FROM);
-    amazonSimpleEmailService.sendEmail(request);
-    System.out.println("Email sent!");
+   amazonSimpleEmailService.sendEmail(request);
+       System.out.println("Email sent!");
+    emailRepo.save(EmailObject.builder()
+                       .userEmail(emailRequest.getUserEmail())
+                       .isEmailSent(Boolean.TRUE)
+                       .build());
     return true;
   }
 

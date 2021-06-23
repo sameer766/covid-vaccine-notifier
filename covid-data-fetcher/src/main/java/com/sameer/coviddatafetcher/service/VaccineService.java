@@ -6,10 +6,17 @@ import com.sameer.coviddatafetcher.client.EmailClient;
 import com.sameer.coviddatafetcher.client.TwilioClient;
 import com.sameer.coviddatafetcher.model.*;
 import com.sameer.coviddatafetcher.repo.ContentRepo;
+import io.github.resilience4j.circuitbreaker.CircuitBreakerRegistry;
+import io.github.resilience4j.timelimiter.TimeLimiter;
+import io.github.resilience4j.timelimiter.TimeLimiterConfig;
+import io.github.resilience4j.timelimiter.TimeLimiterRegistry;
 import java.io.IOException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
@@ -27,9 +34,11 @@ import org.springframework.stereotype.Service;
 @Slf4j
 public class VaccineService {
 
+
   private static final Integer FIRST_CHAR_INDEX = 0;
   private static final String SPLITTER = " ";
   private String CONTENT = "";
+  private static final String TEMPLATE_NAME="MAIN";
 
   @Autowired
   TwilioClient twilioClient;
@@ -43,12 +52,17 @@ public class VaccineService {
   @Autowired
   Resilience4JCircuitBreakerFactory resilience4JCircuitBreakerFactory;
 
+  @Autowired
+  CircuitBreakerRegistry circuitBreakerRegistry;
+
+
   private final CloseableHttpClient httpClient = HttpClients.createDefault();
   ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
                                                            false);
 
 
-  public VaccineResponse getVaccineDetailsIfPresent(VaccineRequest vaccineRequest) throws Exception {
+  public VaccineResponse getVaccineDetailsIfPresent(VaccineRequest vaccineRequest)
+      throws Exception {
 
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
     String todaysDate = formatter.format(LocalDate.now());
@@ -92,8 +106,8 @@ public class VaccineService {
             Session session = sessions.get(j);
             if (session.min_age_limit == 45 && session.available_capacity > 0) {
               log.info("Found vaccines");
-              if (contentRepo.findByTemplate("MAIN").isPresent()) {
-                CONTENT = contentRepo.findByTemplate("MAIN").get().getContent();
+              if (contentRepo.findByTemplate(TEMPLATE_NAME).isPresent()) {
+                CONTENT = contentRepo.findByTemplate(TEMPLATE_NAME).get().getContent();
               }
               return VaccineResponse.builder()
                   .isAvailable(isAvailable)
@@ -116,7 +130,8 @@ public class VaccineService {
   }
 
 
-  public boolean notifyUser(VaccineRequest vaccineRequest, VaccineResponse vaccineResponse) {
+  public boolean notifyUser(VaccineRequest vaccineRequest, VaccineResponse vaccineResponse)
+      throws Exception {
     Resilience4JCircuitBreaker notify = resilience4JCircuitBreakerFactory.create("notify");
 
     List<String> slots = vaccineResponse.getSlots();
@@ -129,30 +144,41 @@ public class VaccineService {
         vaccineResponse.getVaccine(),
         vaccineRequest.getPincode());
 
+    TimeLimiterConfig config = TimeLimiterConfig.custom()
+        .timeoutDuration(Duration.ofMillis(5000))
+        .build();
+    TimeLimiterRegistry registry = TimeLimiterRegistry.of(config);
+    TimeLimiter limiter = registry.timeLimiter("VaccineService");
 
-    SmsRequest smsRequest = new SmsRequest(vaccineRequest.getUserPhoneNumber(), message);
-    notify.run(() -> twilioClient.sendSms(smsRequest), throwable -> handleErrorCaseForPhone(vaccineRequest));
+    limiter.getEventPublisher().onSuccess(e -> System.out.println("succcess"));
+    limiter.getEventPublisher().onError(e -> System.out.println("errorrr"));
+    limiter.getEventPublisher().onTimeout(e -> System.out.println("timeout"));
+    Supplier<Boolean> supplier = () -> {
+      return sendSms(vaccineRequest, message);
+    };
 
+    limiter.executeFutureSupplier(
+        () -> CompletableFuture.supplyAsync(supplier));
 
-    EmailRequest emailRequest = new EmailRequest(vaccineRequest.getUserEmail(),
-                                                 message,
-                                                 vaccineRequest.getUserEmail());
-    notify.run(() -> emailClient.sendEmail(emailRequest), throwable -> handleErrorCaseForEmail(vaccineRequest));
-
+    sendEmail(vaccineRequest, notify, message);
     return true;
   }
 
-  private boolean handleErrorCaseForPhone(VaccineRequest vaccineRequest) {
 
-    log.info("Sms not sent for user :" + vaccineRequest.getUserName());
-    return false;
+  private boolean sendSms(VaccineRequest vaccineRequest, String message) {
+
+    SmsRequest smsRequest = new SmsRequest(vaccineRequest.getUserPhoneNumber(), message);
+    return twilioClient.sendSms(smsRequest);
   }
 
-  private boolean handleErrorCaseForEmail(VaccineRequest vaccineRequest) {
-    log.info("Email not sent :" + vaccineRequest.getUserName());
-    return false;
+  private void sendEmail(VaccineRequest vaccineRequest,
+                         Resilience4JCircuitBreaker notify,
+                         String message) {
+    EmailRequest emailRequest = new EmailRequest(vaccineRequest.getUserEmail(),
+                                                 message,
+                                                 vaccineRequest.getUserEmail());
+    notify.run(() -> emailClient.sendEmail(emailRequest));
   }
-
 
   private String getUserNameCamelCase(String userName) {
     String[] userString = userName.split(SPLITTER);
@@ -162,6 +188,7 @@ public class VaccineService {
       stringBuilder.append(user.substring(FIRST_CHAR_INDEX + 1));
       stringBuilder.append(" ");
     }
+    //ignore last space
     return stringBuilder.substring(0, stringBuilder.length() - 1);
   }
 }
