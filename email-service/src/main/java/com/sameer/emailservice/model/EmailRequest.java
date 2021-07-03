@@ -4,6 +4,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class EmailRequest {
   @JsonProperty
+  private int requestId;
+  @JsonProperty
   private final String userEmail;
   @JsonProperty
   private final String message;
@@ -13,13 +15,19 @@ public class EmailRequest {
     this.message = message;
   }
 
+  public int getRequestId() {
+    return requestId;
+  }
+
   public String getUserEmail() {
     return userEmail;
   }
 
+
   public String getMessage() {
     return message;
   }
+
 
   @Override
   public String toString() {

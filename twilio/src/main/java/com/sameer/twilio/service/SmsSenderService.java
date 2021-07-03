@@ -13,7 +13,7 @@ public class SmsSenderService {
     this.smsSender = smsSender;
   }
 
-  public boolean sendSms(SmsRequest smsRequest) {
+  public boolean sendSms(SmsRequest smsRequest) throws InterruptedException {
     return smsSender.sendSms(smsRequest);
   }
 }

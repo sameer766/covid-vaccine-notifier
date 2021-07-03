@@ -17,3 +17,15 @@ spring:
     hibernate:
       ddl-auto: update
 server.port: 8083
+  #  thread-pool-bulkhead:
+  #    instances:
+  #      service:
+  #        maxThreadPoolSize: 1
+#        coreThreadPoolSize: 1
+#        queueCapacity: 1
+resilience4j:
+  bulkhead:
+    instances:
+      service:
+        maxWaitDuration: 3000
+        maxConcurrentCalls: 5

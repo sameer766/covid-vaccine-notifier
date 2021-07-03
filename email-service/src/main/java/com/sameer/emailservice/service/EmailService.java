@@ -7,11 +7,13 @@ import com.amazonaws.services.simpleemail.model.*;
 import com.sameer.emailservice.model.EmailObject;
 import com.sameer.emailservice.model.EmailRequest;
 import com.sameer.emailservice.repository.EmailRepo;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
+@Slf4j
 //@EnableConfigurationProperties(AwsProperties.class)
 public class EmailService {
   @Value("${aws.accessKeyId}")
@@ -43,8 +45,9 @@ public class EmailService {
                          .withSubject(new Content()
                                           .withCharset("UTF-8").withData(SUBJECT)))
         .withSource(FROM);
-   amazonSimpleEmailService.sendEmail(request);
-       System.out.println("Email sent!");
+    log.info("Email request received for requestId : " + emailRequest.getRequestId());
+    amazonSimpleEmailService.sendEmail(request);
+    log.info("Email sent for requestId : " + emailRequest.getRequestId());
     emailRepo.save(EmailObject.builder()
                        .userEmail(emailRequest.getUserEmail())
                        .isEmailSent(Boolean.TRUE)

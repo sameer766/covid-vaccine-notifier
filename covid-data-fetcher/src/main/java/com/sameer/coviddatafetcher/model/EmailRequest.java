@@ -4,21 +4,19 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 public class EmailRequest {
   @JsonProperty
+  private final int requestId;
+  @JsonProperty
   private final String userEmail;
   @JsonProperty
   private final String message;
-  @JsonProperty
-  private final String userName;
 
-  public EmailRequest(String userEmail, String message, String userName) {
+
+  public EmailRequest(Integer requestId,String userEmail, String message) {
+    this.requestId=requestId;
     this.userEmail = userEmail;
     this.message = message;
-    this.userName = userName;
   }
 
-  public String getUserName() {
-    return userName;
-  }
 
   public String getUserEmail() {
     return userEmail;
@@ -31,9 +29,9 @@ public class EmailRequest {
   @Override
   public String toString() {
     return "EmailRequest{" +
-        "userEmail='" + userEmail + '\'' +
+        "requestId=" + requestId +
+        ", userEmail='" + userEmail + '\'' +
         ", message='" + message + '\'' +
-        ", userName='" + userName + '\'' +
         '}';
   }
 }

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 public class TwilioSmsSender implements SmsSender {
 
   private final TwilioConfiguration twilioConfiguration;
+  private final String PHONE_NUMBER_REGEX = "^[789]\\d{9}$";
 
   @Autowired
   public TwilioSmsSender(TwilioConfiguration twilioConfiguration) {
@@ -21,26 +22,23 @@ public class TwilioSmsSender implements SmsSender {
   }
 
   @Override
-  public boolean sendSms(SmsRequest smsRequest) {
-    if(isPhoneNumberValid(smsRequest.getPhoneNumber()))
-    {
+  public boolean sendSms(SmsRequest smsRequest) throws InterruptedException {
+    if (isPhoneNumberValid(smsRequest.getPhoneNumber())) {
+      log.info("request received for requestId : " + smsRequest.getRequestId());
       Message message = Message.creator(
           new com.twilio.type.PhoneNumber(smsRequest.getPhoneNumber()),
           new com.twilio.type.PhoneNumber(twilioConfiguration.getTrialNumber()),
           smsRequest.getMessage()).create();
-      log.info(message+" message sent ");
+      log.info(message + " message sent for requestId :" + smsRequest.getRequestId());
       return true;
-    }else {
+    } else {
       throw new IllegalArgumentException("Phone number is not valid");
     }
   }
 
   private boolean isPhoneNumberValid(String phoneNumber) {
 
-    String patternString = "^[789]\\d{9}$";
-
-    Pattern pattern = Pattern.compile(patternString);
-
+    Pattern pattern = Pattern.compile(PHONE_NUMBER_REGEX);
     Matcher matcher = pattern.matcher(phoneNumber.substring(3));
     return matcher.matches();
   }

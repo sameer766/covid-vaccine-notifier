@@ -8,8 +8,8 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @EnableFeignClients
 public class CovidDataFetcherApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(CovidDataFetcherApplication.class, args);
-	}
+  public static void main(String[] args) {
+    SpringApplication.run(CovidDataFetcherApplication.class, args);
+  }
 
 }
