@@ -6,6 +6,18 @@ import org.quartz.JobExecutionContext;
 import org.quartz.Trigger;
 import org.quartz.TriggerListener;
 
+//        users.forEach(item->
+//        {
+//            count++;
+//            TimerInfo timerInfo = TimerInfo.builder().callbackData("string").cronExpression("0/10 * * * * ? *").initalOffset(0)
+//                    .remainingFireCount(0).repeatIntervalMS(0).runForever(true).totalFireCount(0)
+//                    .vaccineRequest(VaccineRequest.builder().age(item.getAge()).pincode(item.getPincode())
+//                            .userEmail(item.getUserEmail())
+//                            .userPhoneNumber(item.getUserPhoneNumber())
+//                            .userName(item.getUserName())
+//                            .build()).build();
+//            appController.runJob3(timerInfo,"job"+ job.getAndIncrement());
+//        });
 public class SimpleTriggerListener implements TriggerListener {
 
   private TimerService timerService;

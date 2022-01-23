@@ -16,4 +16,5 @@ public class VaccineRequest implements Serializable {
     private String userPhoneNumber;
     private String userEmail;
     private String userName;
+    private Integer age;
 }

@@ -13,6 +13,8 @@ import org.quartz.impl.matchers.GroupMatcher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import static com.sameer.scheduler.job.JobGeneric.myClassLoader;
+
 @Service
 @Slf4j
 public class TimerService {
@@ -38,19 +40,19 @@ public class TimerService {
   public List<TimerInfo> getAllRunningJob() {
     try {
       return scheduler.getJobKeys(GroupMatcher.anyGroup())
-          .stream()
-          .map(jobKey ->
-               {
-                 try {
-                   final JobDetail jobDetail = scheduler.getJobDetail(jobKey);
-                   return (TimerInfo) jobDetail.getJobDataMap().get(jobKey.getName());
-                 } catch (SchedulerException e) {
-                   e.printStackTrace();
-                   return null;
-                 }
-               })
-          .filter(Objects::nonNull)
-          .collect(Collectors.toList());
+              .stream()
+              .map(jobKey ->
+              {
+                try {
+                  final JobDetail jobDetail = scheduler.getJobDetail(jobKey);
+                  return (TimerInfo) jobDetail.getJobDataMap().get(jobKey.getName());
+                } catch (SchedulerException e) {
+                  e.printStackTrace();
+                  return null;
+                }
+              })
+              .filter(Objects::nonNull)
+              .collect(Collectors.toList());
 
     } catch (SchedulerException e) {
       e.printStackTrace();
@@ -80,12 +82,14 @@ public class TimerService {
 
   public boolean deleteTimer(String timerId) {
     try {
-       boolean deleted = scheduler.deleteJob(new JobKey(timerId));
-       if(deleted)
-       {
+      boolean deleted = scheduler.deleteJob(new JobKey(timerId));
+      System.out.println(myClassLoader);
+      myClassLoader=null;
+      if(deleted)
+      {
         log.info("Successfuly deleted job with timerId :"+timerId);
-       }
-       return deleted;
+      }
+      return deleted;
     } catch (SchedulerException e) {
       e.printStackTrace();
     }

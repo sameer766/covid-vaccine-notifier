@@ -7,7 +7,7 @@ spring:
   quartz:
     job-store-type: jdbc
   datasource:
-    username: sameer
+    username: root
     jdbc-url: jdbc:mysql://localhost:3306/QUARTZ_SCHEMA
     driverClassName: com.mysql.cj.jdbc.Driver
   cloud:

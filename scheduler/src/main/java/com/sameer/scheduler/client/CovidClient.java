@@ -8,5 +8,5 @@ import org.springframework.web.bind.annotation.PostMapping;
 public interface CovidClient {
 
     @PostMapping("/available-vaccine")
-    public void getAvailableVaccine(VaccineRequest vaccineRequest);
+    void getAvailableVaccine(VaccineRequest vaccineRequest);
 }

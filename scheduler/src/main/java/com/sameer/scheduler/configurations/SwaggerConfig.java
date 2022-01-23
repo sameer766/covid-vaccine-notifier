@@ -45,7 +45,6 @@ public class SwaggerConfig {
 
     }
 
-
 //
 //  @Override
 //  public void addResourceHandlers(ResourceHandlerRegistry registry) {
@@ -58,6 +57,4 @@ public class SwaggerConfig {
 //        .addResourceHandler("/webjars/**")
 //        .addResourceLocations("classpath:/META-INF/resources/webjars/");
 //  }
-
-
 }

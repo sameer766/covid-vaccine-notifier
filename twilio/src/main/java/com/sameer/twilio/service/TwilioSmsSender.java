@@ -29,7 +29,7 @@ public class TwilioSmsSender implements SmsSender {
           new com.twilio.type.PhoneNumber(smsRequest.getPhoneNumber()),
           new com.twilio.type.PhoneNumber(twilioConfiguration.getTrialNumber()),
           smsRequest.getMessage()).create();
-      log.info(message + " message sent for requestId :" + smsRequest.getRequestId());
+      log.info(" message sent for requestId :" + smsRequest.getRequestId());
       return true;
     } else {
       throw new IllegalArgumentException("Phone number is not valid");
@@ -37,9 +37,11 @@ public class TwilioSmsSender implements SmsSender {
   }
 
   private boolean isPhoneNumberValid(String phoneNumber) {
-
+    String userPhoneNumber=phoneNumber;
+    if(phoneNumber.length()>10)
+      userPhoneNumber=phoneNumber.substring(userPhoneNumber.length()-10);
     Pattern pattern = Pattern.compile(PHONE_NUMBER_REGEX);
-    Matcher matcher = pattern.matcher(phoneNumber.substring(3));
+    Matcher matcher = pattern.matcher(userPhoneNumber);
     return matcher.matches();
   }
 }

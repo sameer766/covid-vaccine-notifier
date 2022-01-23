@@ -19,32 +19,6 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-resilience4j:
-  circuitbreaker:
-    instances:
-      service:
-        registerHealthIndicator: true
-        eventConsumerBufferSize: 10
-        automaticTransitionFromOpenToHalfOpenEnabled: true
-        failureRateThreshold: 50
-        minimumNumberOfCalls: 5
-        permittedNumberOfCallsInHalfOpenState: 3
-        slidingWindowSize: 10
-        waitDurationInOpenState: 5s
-        slidingWindowType: COUNT_BASED
-  retry:
-    instances:
-      service:
-        maxRetryAttempts: 3
-        waitDuration: 5000
-  ratelimiter:
-    instances:
-      service:
-        limitForPeriod: 200
-        limitRefreshPeriod: 10s
-        timeoutDuration: 0s
-        registerHealthIndicator: true
-        eventConsumerBufferSize: 100
 
 management:
   health:
@@ -57,3 +31,10 @@ management:
   endpoint:
     health:
       show-details: always
+
+
+app:
+  queue:
+    email:
+    sms:
+

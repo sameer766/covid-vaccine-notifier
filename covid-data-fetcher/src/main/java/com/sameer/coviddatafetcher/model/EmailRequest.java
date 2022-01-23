@@ -17,7 +17,6 @@ public class EmailRequest {
     this.message = message;
   }
 
-
   public String getUserEmail() {
     return userEmail;
   }

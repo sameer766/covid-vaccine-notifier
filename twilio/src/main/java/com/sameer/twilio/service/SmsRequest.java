@@ -30,8 +30,8 @@ public class SmsRequest {
   @Override
   public String toString() {
     return "SmsRequest{" +
-        "phoneNumber='" + phoneNumber + '\'' +
-        ", message='" + message + '\'' +
-        '}';
+            "phoneNumber='" + phoneNumber + '\'' +
+            ", message='" + message + '\'' +
+            '}';
   }
 }

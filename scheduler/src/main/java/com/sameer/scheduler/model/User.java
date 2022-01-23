@@ -1,17 +1,13 @@
-package com.sameer.coviddatafetcher.model;
+package com.sameer.scheduler.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.io.Serializable;
-
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
-public class VaccineRequest implements Serializable {
+@Data
+public class User {
     private String pincode;
     private String userPhoneNumber;
     private String userEmail;
