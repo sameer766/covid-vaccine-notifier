@@ -5,12 +5,17 @@ import com.sameer.coviddatafetcher.model.VaccineRequest;
 import com.sameer.coviddatafetcher.model.VaccineResponse;
 import com.sameer.coviddatafetcher.repo.ContentRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.annotation.CacheConfig;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
+@CacheConfig(cacheNames = {"content"})
 public class ContentService {
 
     private static final String TEMPLATE_NAME = "MAIN";
@@ -20,6 +25,9 @@ public class ContentService {
 
     @Autowired
     ContentRepo contentRepo;
+
+    @Autowired
+    CacheManager cacheManager;
 
     public String getMessage(VaccineRequest vaccineRequest, VaccineResponse vaccineResponse) {
         List<String> slots = vaccineResponse.getSlots();
@@ -48,7 +56,14 @@ public class ContentService {
         return stringBuilder.substring(0, stringBuilder.length() - 1);
     }
 
-    public Optional<Content> getContentFromDb() {
+    @CacheEvict(allEntries = true)
+    public void clear() {
+        cacheManager.getCacheNames()
+                .forEach(cacheName -> cacheManager.getCache(cacheName).clear());
+    }
+
+    @Cacheable(value = "cacheContent", key = "#root.methodName")
+    public Optional<Content> getContentFromDb(){
         return contentRepo.findByTemplate(TEMPLATE_NAME);
     }
 }

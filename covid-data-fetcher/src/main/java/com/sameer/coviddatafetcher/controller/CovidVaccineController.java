@@ -45,6 +45,7 @@ public class CovidVaccineController {
             }
             return new Response(EMPTY, "Succesfully pushed message to the queue");
         } else {
+            log.info("Vaccine not present for pincode : "+vaccineRequest.getPincode());
             return new Response(EMPTY, "Vaccine Not present");
         }
     }
@@ -55,4 +56,9 @@ public class CovidVaccineController {
 //        return new Response(EMPTY, "Number of request more than given");
 //    }
 
+    @GetMapping("/clearCache")
+    public Response clearCache() {
+        contentService.clear();
+        return new Response(EMPTY,"Successfully cleared cache");
+    }
 }

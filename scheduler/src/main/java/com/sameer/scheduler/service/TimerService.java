@@ -2,6 +2,8 @@ package com.sameer.scheduler.service;
 
 import com.sameer.scheduler.model.TimerInfo;
 import com.sameer.scheduler.utils.TimerUtils;
+
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -96,6 +98,14 @@ public class TimerService {
     return false;
   }
 
+  public boolean deleteTimer() throws SchedulerException {
+    List<JobKey> jobKeys=new LinkedList<>();
+     scheduler.getJobKeys(GroupMatcher.anyGroup())
+            .stream()
+            .map(jobKeys::add)
+             .collect(Collectors.toList());
+    return  scheduler.deleteJobs(jobKeys);
+  }
 
   @PostConstruct
   public void init() {

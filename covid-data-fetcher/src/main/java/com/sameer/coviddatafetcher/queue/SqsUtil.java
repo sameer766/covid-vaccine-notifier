@@ -68,13 +68,11 @@ public class SqsUtil implements ApplicationEventPublisherAware {
 
     @GetMapping("/send-email/{message}")
     public void sendEmail(Integer requestId, VaccineRequest vaccineRequest, String message) {
-        System.out.println("Email sent");
         queueMessagingTemplate.convertAndSend(emailEndpoint, new QueueRequest(requestId, vaccineRequest, message,EMAIL));
     }
 
     @GetMapping("/send-sms/{message}")
     public void sendSms(Integer requestId, VaccineRequest vaccineRequest, String message) {
-        System.out.println("Message sent");
         queueMessagingTemplate.convertAndSend(smsEndPoint, new QueueRequest(requestId, vaccineRequest, message,SMS));
     }
 

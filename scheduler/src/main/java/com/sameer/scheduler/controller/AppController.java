@@ -45,8 +45,8 @@ public class AppController {
   }
 
   @PostMapping("/scheduleJobFromFile")
-  public List<User> scheduleJob(@RequestParam("file") MultipartFile file) throws IOException {
-    return scheduleService.schedule(file);
+  public void scheduleJob(@RequestParam("file") MultipartFile file) throws IOException {
+     scheduleService.schedule(file);
   }
 
   @GetMapping("/getAll")
@@ -62,5 +62,10 @@ public class AppController {
   @DeleteMapping("{id}")
   public boolean deleteTimer(@PathVariable String id) throws SchedulerException {
     return timerService.deleteTimer(id);
+  }
+
+  @DeleteMapping("/delete")
+  public boolean deleteTimer() throws SchedulerException {
+    return timerService.deleteTimer();
   }
 }

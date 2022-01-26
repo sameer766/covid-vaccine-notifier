@@ -15,11 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.IntStream;
 
 @Service
 public class ScheduleService {
@@ -31,38 +28,30 @@ public class ScheduleService {
 
 
 
-    public List<User> schedule(MultipartFile file) throws IOException {
-        List<User> users = readFile(file);
+    public void schedule(MultipartFile file) throws IOException {
+        Map<User,String> listMap = readFile(file);
         AtomicInteger job = new AtomicInteger(count);
-        //exception while executing for runJob
-//        users.forEach(item->
-//        {
-//            count++;
-//            TimerInfo timerInfo = TimerInfo.builder().callbackData("string").cronExpression("0/10 * * * * ? *").initalOffset(0)
-//                    .remainingFireCount(0).repeatIntervalMS(0).runForever(true).totalFireCount(0)
-//                    .vaccineRequest(VaccineRequest.builder().age(item.getAge()).pincode(item.getPincode())
-//                            .userEmail(item.getUserEmail())
-//                            .userPhoneNumber(item.getUserPhoneNumber())
-//                            .userName(item.getUserName())
-//                            .build()).build();
-//            appController.runJob3(timerInfo,"job"+ job.getAndIncrement());
-//        });
 
-        IntStream.range(0, 10).forEach(value -> {
-            TimerInfo timerInfo = TimerInfo.builder().callbackData("string").cronExpression("0/30 0/1 * 1/1 * ? *").initalOffset(0)
+        listMap.forEach((item,cron)-> {
+            count++;
+            TimerInfo timerInfo = TimerInfo.builder().callbackData("string").cronExpression(cron).initalOffset(0)
                     .remainingFireCount(0).repeatIntervalMS(0).runForever(true).totalFireCount(0)
-                    .vaccineRequest(VaccineRequest.builder().age(value + 22).pincode("522019")
-                            .userEmail("royrahul7666@gmail.com")
-                            .userPhoneNumber("+919479895240")
-                            .userName("name" + value)
+                    .vaccineRequest(VaccineRequest.builder().age(item.getAge()).pincode(item.getPincode())
+                            .userEmail(item.getUserEmail())
+                            .userPhoneNumber("+91"+item.getUserPhoneNumber().substring(1))
+                            .userName(item.getUserName())
                             .build()).build();
-            appController.runJob3(timerInfo, "job" + job.getAndIncrement());
+            appController.runJob3(timerInfo,"job"+ job.getAndIncrement());
         });
-        return users;
+
     }
 
-    public List<User> readFile(MultipartFile file) throws IOException {
-        List<User> tableModels = new LinkedList<>();
+    public Map<User, String> readFile(MultipartFile file) throws IOException {
+
+        Map<User,String> map=new HashMap<>();
+
+        String cronExpression = null;
+
         XSSFWorkbook wb = new XSSFWorkbook(file.getInputStream());
         XSSFSheet sheet = wb.getSheetAt(0);
         Iterator<Row> iterator = sheet.iterator();
@@ -72,36 +61,39 @@ public class ScheduleService {
                 continue;
             }
             Iterator<Cell> cellIterator = row.cellIterator();
-            User tableModel = new User();
+            User user = new User();
             while (cellIterator.hasNext()) {
                 Cell cell = cellIterator.next();
                 if (cell.getColumnIndex() == 0) {
-                    tableModel.setPincode(cell.getStringCellValue());
+                    user.setPincode(cell.getStringCellValue());
                 }
                 if (cell.getColumnIndex() == 1) {
-                    tableModel.setUserName(cell.getStringCellValue());
+                    user.setUserName(cell.getStringCellValue());
                 }
                 if (cell.getColumnIndex() == 2) {
-                    tableModel.setUserPhoneNumber(cell.getStringCellValue());
+                    user.setUserPhoneNumber(cell.getStringCellValue());
                 }
                 if (cell.getColumnIndex() == 3) {
-                    tableModel.setUserEmail(cell.getStringCellValue());
+                    user.setUserEmail(cell.getStringCellValue());
                 }
                 if (cell.getColumnIndex() == 4) {
-                    tableModel.setAge((int) cell.getNumericCellValue());
+                    user.setAge((int) cell.getNumericCellValue());
                 }
-
+                if (cell.getColumnIndex() == 5) {
+                    cronExpression=cell.getStringCellValue();
+                }
             }
-            String fileName = "/Users/sameer/Desktop/" + file.getOriginalFilename().replace("{file}", "covid-writer");
-            File newFile = new File(fileName);
-            boolean newFileCreated = newFile.createNewFile();
-            if (newFileCreated) {
-                FileOutputStream fout = new FileOutputStream(fileName);
-                fout.write(file.getBytes());
-                fout.close();
-            }
-            tableModels.add(tableModel);
+            map.put(user,cronExpression);
         }
-        return tableModels;
+        String fileName = "/Users/sameer/Desktop/" + file.getOriginalFilename().replace("{file}", "covid-writer");
+        File newFile = new File(fileName);
+        boolean newFileCreated = newFile.createNewFile();
+        if (newFileCreated) {
+            FileOutputStream fout = new FileOutputStream(fileName);
+            fout.write(file.getBytes());
+            fout.close();
+        }
+
+        return map;
     }
 }
