@@ -6,11 +6,14 @@ public class EmailRequest {
   @JsonProperty
   private int requestId;
   @JsonProperty
+  private final String userName;
+  @JsonProperty
   private final String userEmail;
   @JsonProperty
   private final String message;
 
-  public EmailRequest(String userEmail, String message) {
+  public EmailRequest(String userName, String userEmail, String message) {
+    this.userName = userName;
     this.userEmail = userEmail;
     this.message = message;
   }
@@ -29,11 +32,17 @@ public class EmailRequest {
   }
 
 
+  public String getUserName() {
+    return userName;
+  }
+
   @Override
   public String toString() {
     return "EmailRequest{" +
-        "email='" + userEmail + '\'' +
-        ", message='" + message + '\'' +
-        '}';
+            "requestId=" + requestId +
+            ", userName=" + userName +
+            ", userEmail='" + userEmail + '\'' +
+            ", message='" + message + '\'' +
+            '}';
   }
 }

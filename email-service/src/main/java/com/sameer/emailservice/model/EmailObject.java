@@ -14,6 +14,7 @@ public class EmailObject {
   @GeneratedValue
   @javax.persistence.Id
   private final Integer Id;
+  private final String userName;
   private final String userEmail;
   @Column(nullable = false, columnDefinition = "BOOLEAN")
   private final Boolean isEmailSent;

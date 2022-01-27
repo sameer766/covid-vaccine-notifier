@@ -13,6 +13,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class ClientClass {
 
+  public static int GENERIC_CLASS_COUNT = 0;
+
   @Autowired
   private TimerService timerService;
 
@@ -29,10 +31,10 @@ public class ClientClass {
     timerService.schedule(Job3.class, timerInfo);
   }
 
-  public void runGenericJob(TimerInfo timerInfo, String className) {
+  public void runGenericJob(TimerInfo timerInfo) {
     Class<? extends Job> className1 = null;
     try {
-      JobGeneric jobGeneric=new JobGeneric(className);
+      JobGeneric jobGeneric=new JobGeneric("job"+(++GENERIC_CLASS_COUNT));
       className1= (Class<? extends Job>) jobGeneric.getClassName();
     } catch (IllegalAccessException e) {
       e.printStackTrace();

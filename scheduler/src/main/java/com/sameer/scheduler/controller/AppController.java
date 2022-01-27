@@ -39,9 +39,9 @@ public class AppController {
     clientClass.run3(timerInfo);
   }
 
-  @PostMapping("/generic-job-scheduler/{className}")
-  public void runJob3(@RequestBody TimerInfo timerInfo, @PathVariable String className) {
-    clientClass.runGenericJob(timerInfo,className);
+  @PostMapping("/generic-job-scheduler")
+  public void runGenericJob(@RequestBody TimerInfo timerInfo) {
+    clientClass.runGenericJob(timerInfo);
   }
 
   @PostMapping("/scheduleJobFromFile")

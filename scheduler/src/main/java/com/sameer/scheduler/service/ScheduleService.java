@@ -16,24 +16,29 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 
 @Service
 public class ScheduleService {
 
-    public static int count = 0;
-
     @Autowired
     AppController appController;
 
-
-
     public void schedule(MultipartFile file) throws IOException {
+
+//        IntStream.range(0,100).forEach((item)->
+//        {
+//            TimerInfo timerInfo = TimerInfo.builder().callbackData("string").cronExpression("0/7 * * * * ? *").initalOffset(0)
+//                    .remainingFireCount(0).repeatIntervalMS(0).runForever(true).totalFireCount(0)
+//                    .vaccineRequest(VaccineRequest.builder().age(item+25).pincode("522019")
+//                            .userEmail("pandesameer76@gmail.com")
+//                            .userPhoneNumber("+919479895240")
+//                            .userName("Sameer pande")
+//                            .build()).build();
+//            appController.runGenericJob(timerInfo);
+//        });
         Map<User,String> listMap = readFile(file);
-        AtomicInteger job = new AtomicInteger(count);
 
         listMap.forEach((item,cron)-> {
-            count++;
             TimerInfo timerInfo = TimerInfo.builder().callbackData("string").cronExpression(cron).initalOffset(0)
                     .remainingFireCount(0).repeatIntervalMS(0).runForever(true).totalFireCount(0)
                     .vaccineRequest(VaccineRequest.builder().age(item.getAge()).pincode(item.getPincode())
@@ -41,7 +46,7 @@ public class ScheduleService {
                             .userPhoneNumber("+91"+item.getUserPhoneNumber().substring(1))
                             .userName(item.getUserName())
                             .build()).build();
-            appController.runJob3(timerInfo,"job"+ job.getAndIncrement());
+            appController.runGenericJob(timerInfo);
         });
 
     }

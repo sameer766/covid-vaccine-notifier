@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sameer.coviddatafetcher.client.EmailClient;
 import com.sameer.coviddatafetcher.client.TwilioClient;
+import com.sameer.coviddatafetcher.entity.UserInfo;
 import com.sameer.coviddatafetcher.model.*;
 import com.sameer.coviddatafetcher.repo.ContentRepo;
+import com.sameer.coviddatafetcher.repo.UserRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -20,6 +22,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.*;
 
 @Service
@@ -39,6 +42,9 @@ public class VaccineService {
 
     @Autowired
     ContentRepo contentRepo;
+
+    @Autowired
+    UserRepo userRepo;
 
 
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -118,9 +124,25 @@ public class VaccineService {
                                      VaccineRequest vaccineRequest,
                                      String message) {
         EmailRequest emailRequest = new EmailRequest(requestId,
+                vaccineRequest.getUserName(),
                 vaccineRequest.getUserEmail(),
                 message);
 
         return executorService.submit(() -> emailClient.sendEmail(emailRequest));
+    }
+
+    public UserInfo saveUserData(VaccineRequest vaccineRequest) {
+        Optional<UserInfo> userInfoOptional = userRepo.findByUserEmail(vaccineRequest.getUserEmail());
+        if(!userInfoOptional.isPresent()) {
+            UserInfo userInfo = userRepo.save(UserInfo.builder()
+                    .userEmail(vaccineRequest.getUserEmail())
+                    .userName(vaccineRequest.getUserName())
+                    .age(vaccineRequest.getAge())
+                    .pincode(vaccineRequest.getPincode())
+                    .userPhoneNumber(vaccineRequest.getUserPhoneNumber())
+                    .build());
+            return userInfo;
+        }
+        return userInfoOptional.get();
     }
 }

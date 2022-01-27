@@ -52,6 +52,7 @@ public class EmailService {
 
     Thread thread = new Thread(() -> {
       emailRepo.save(EmailObject.builder()
+              .userName(emailRequest.getUserName())
               .userEmail(emailRequest.getUserEmail())
               .isEmailSent(Boolean.TRUE)
               .build());
