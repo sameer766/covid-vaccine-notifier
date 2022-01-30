@@ -45,8 +45,8 @@ public class AppController {
   }
 
   @PostMapping("/scheduleJobFromFile")
-  public void scheduleJob(@RequestParam("file") MultipartFile file) throws IOException {
-     scheduleService.schedule(file);
+  public void scheduleJob(){
+     scheduleService.schedule();
   }
 
   @GetMapping("/getAll")

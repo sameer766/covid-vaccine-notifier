@@ -38,11 +38,7 @@ public class CovidVaccineController {
         if (vaccineResponse != null) {
             try {
                 String message = contentService.getMessage(vaccineRequest, vaccineResponse);
-                Thread thread = new Thread(() -> {
-                      vaccineService.saveUserData(vaccineRequest);
-                });
-                thread.setDaemon(true);
-                thread.start();
+                saveUserDataAsync(vaccineRequest);
                 sqsUtil.sendSms(++requestId, vaccineRequest, message);
                 sqsUtil.sendEmail(requestId, vaccineRequest, message);
             } catch (Exception e) {
@@ -53,6 +49,14 @@ public class CovidVaccineController {
             log.info("Vaccine not present for pincode : "+vaccineRequest.getPincode());
             return new Response(EMPTY, "Vaccine Not present");
         }
+    }
+
+    private void saveUserDataAsync(VaccineRequest vaccineRequest) {
+        Thread thread = new Thread(() -> {
+              vaccineService.saveUserData(vaccineRequest);
+        });
+        thread.setDaemon(true);
+        thread.start();
     }
 //
 //    public Response rateLimiterFallback(VaccineRequest vaccineRequest,
