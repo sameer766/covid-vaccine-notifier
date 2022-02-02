@@ -4,6 +4,7 @@ import com.sameer.scheduler.controller.AppController;
 import com.sameer.scheduler.model.TimerInfo;
 import com.sameer.scheduler.model.User;
 import com.sameer.scheduler.model.VaccineRequest;
+import com.sameer.scheduler.storage.controller.StorageController;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -30,6 +31,9 @@ public class ScheduleService {
 
     @Autowired
     AppController appController;
+
+    @Autowired
+    StorageController storageController;
 
     public final String INPUT_FILE_PATH;
     public final String PROTECTED_FILE_PATH;
@@ -78,6 +82,7 @@ public class ScheduleService {
     public Map<User, String> readFile(File file) throws IOException {
 
             passwordProtectFile(file);
+        storageController.uploadRegularFile(new File(PROTECTED_FILE_PATH));
             deleteOriginalFile();
 
         File encryptedFile = new File(PROTECTED_FILE_PATH);
@@ -115,6 +120,9 @@ public class ScheduleService {
                 }
             }
             map.put(user, cronExpression);
+        }
+        if(!new File(PROTECTED_FILE_PATH).delete()) {
+            log.error("Unable to delete protected file");
         }
         return map;
     }
