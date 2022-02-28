@@ -35,8 +35,9 @@ public class ContentService {
 
         contentFromDb.ifPresent(value -> content = value.getContent());
         return String.format(
-                "Hi, "
+                "Hi "
                         + getUserNameCamelCase(vaccineRequest.getUserName())
+                        + " ,"
                         + content,
                 vaccineResponse.getDate(),
                 slots.toString(),
