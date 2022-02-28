@@ -17,11 +17,11 @@ public class EmailSendingEvent extends ApplicationEvent {
         this.queueRequest=queueRequest;
     }
     public QueueRequest getQueueObject() {
-        return queueRequest;
+        return this.queueRequest;
     }
 
     public Future<Boolean> getMessage() {
-        return booleanFuture;
+        return this.booleanFuture;
     }
 
     @Override

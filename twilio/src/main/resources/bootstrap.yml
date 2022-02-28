@@ -9,3 +9,6 @@ spring:
       kv:
       enabled: true
 server.port: 8082
+logging:
+  file:
+    name: /Users/sameer/Desktop/logs_v1/elk-stack-twilio.log

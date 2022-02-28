@@ -1,12 +1,15 @@
 package com.sameer.coviddatafetcher.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.sameer.coviddatafetcher.client.EmailClient;
 import com.sameer.coviddatafetcher.client.TwilioClient;
+import com.sameer.coviddatafetcher.entity.PincodeDetails;
 import com.sameer.coviddatafetcher.entity.UserInfo;
 import com.sameer.coviddatafetcher.model.*;
 import com.sameer.coviddatafetcher.repo.ContentRepo;
+import com.sameer.coviddatafetcher.repo.PincodeRepo;
 import com.sameer.coviddatafetcher.repo.UserRepo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.HttpEntity;
@@ -20,18 +23,24 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 @Service
 @Slf4j
 public class VaccineService {
 
+    private static final int MIN_WAIT_TIME_UPDATE_API_DATA = 5 ;
     private static Integer requestId = 0;
 
-    ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime()
+    ExecutorService executorService = Executors
+            .newFixedThreadPool(Runtime.getRuntime()
             .availableProcessors());
 
     @Autowired
@@ -46,6 +55,8 @@ public class VaccineService {
     @Autowired
     UserRepo userRepo;
 
+    @Autowired
+    PincodeRepo pincodeRepo;
 
     private final CloseableHttpClient httpClient = HttpClients.createDefault();
     ObjectMapper objectMapper = new ObjectMapper().configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
@@ -115,7 +126,7 @@ public class VaccineService {
         return null;
     }
 
-    public Future<Boolean> sendSms(Integer requestId, VaccineRequest vaccineRequest, String message)  {
+    public Future<Boolean> sendSms(Integer requestId, VaccineRequest vaccineRequest, String message) {
         SmsRequest smsRequest = new SmsRequest(requestId, vaccineRequest.getUserPhoneNumber(), message);
         return executorService.submit(() -> twilioClient.sendSms(smsRequest));
     }
@@ -131,18 +142,41 @@ public class VaccineService {
         return executorService.submit(() -> emailClient.sendEmail(emailRequest));
     }
 
-    public UserInfo saveUserData(VaccineRequest vaccineRequest) {
+
+    public synchronized UserInfo saveUserData(VaccineRequest vaccineRequest) {
         Optional<UserInfo> userInfoOptional = userRepo.findByUserEmail(vaccineRequest.getUserEmail());
-        if(!userInfoOptional.isPresent()) {
-            UserInfo userInfo = userRepo.save(UserInfo.builder()
+        if (!userInfoOptional.isPresent()) {
+            UserInfo userInfo = UserInfo.builder()
                     .userEmail(vaccineRequest.getUserEmail())
                     .userName(vaccineRequest.getUserName())
                     .age(vaccineRequest.getAge())
                     .pincode(vaccineRequest.getPincode())
                     .userPhoneNumber(vaccineRequest.getUserPhoneNumber())
-                    .build());
-            return userInfo;
+                    .build();
+            UserInfo save = userRepo.save(userInfo);
+            return save;
         }
         return userInfoOptional.get();
+    }
+
+    public synchronized void saveApiResponseForPincode(String pincode, VaccineResponse vaccineResponse) {
+        Optional<PincodeDetails> byPincode = pincodeRepo.findByPincode(pincode);
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            if (byPincode.isPresent()) {
+                PincodeDetails pincodeDetails = byPincode.get();
+                long seconds = ChronoUnit.SECONDS.between(pincodeDetails.getDateModified(), LocalDateTime.now());
+                if (seconds> MIN_WAIT_TIME_UPDATE_API_DATA) {
+                    pincodeDetails.setVaccineDetails(objectMapper.writeValueAsString(vaccineResponse));
+                    pincodeRepo.saveAndFlush(pincodeDetails);
+                }
+            } else {
+                pincodeRepo.save(new PincodeDetails(pincode, true, objectMapper.writeValueAsString(vaccineResponse)));
+            }
+
+        } catch (JsonProcessingException e) {
+           e.printStackTrace();
+        }
+
     }
 }

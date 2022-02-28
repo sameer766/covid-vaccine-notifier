@@ -39,6 +39,7 @@ public class CovidVaccineController {
             try {
                 String message = contentService.getMessage(vaccineRequest, vaccineResponse);
                 saveUserDataAsync(vaccineRequest);
+                saveApiResponseForPincodeAsync(vaccineRequest.getPincode(),vaccineResponse);
                 sqsUtil.sendSms(++requestId, vaccineRequest, message);
                 sqsUtil.sendEmail(requestId, vaccineRequest, message);
             } catch (Exception e) {
@@ -51,9 +52,17 @@ public class CovidVaccineController {
         }
     }
 
+    private void saveApiResponseForPincodeAsync(String pincode, VaccineResponse vaccineResponse) {
+        Thread thread = new Thread(() -> {
+            vaccineService.saveApiResponseForPincode(pincode,vaccineResponse);
+        });
+        thread.setDaemon(true);
+        thread.start();
+    }
+
     private void saveUserDataAsync(VaccineRequest vaccineRequest) {
         Thread thread = new Thread(() -> {
-              vaccineService.saveUserData(vaccineRequest);
+            vaccineService.saveUserData(vaccineRequest);
         });
         thread.setDaemon(true);
         thread.start();

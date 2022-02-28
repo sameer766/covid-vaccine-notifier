@@ -94,6 +94,7 @@ public class JobGeneric
             }
         }
 
+        assert f != null;
         f.setAccessible(true);
         final Unsafe unsafe = (Unsafe) f.get(null);
         ClassLoader classLoader= ClassLoader.getSystemClassLoader();

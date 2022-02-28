@@ -64,6 +64,7 @@ public class ScheduleService {
             cronUserDetailsMap = readFile(new File(INPUT_FILE_PATH));
         } catch (IOException e) {
             e.printStackTrace();
+            return;
         }
 
         cronUserDetailsMap.forEach((item, cron) -> {

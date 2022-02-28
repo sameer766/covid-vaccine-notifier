@@ -30,4 +30,7 @@ cloud:
   aws:
     stack:
       auto:false
+logging:
+  file:
+    name: /Users/sameer/Desktop/logs_v1/elk-stack-scheduler.log
 

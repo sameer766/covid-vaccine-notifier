@@ -16,6 +16,9 @@ spring:
     url: jdbc:mysql://localhost:3306/covid_data
     database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
     driverClassName: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 300000
+      maximum-pool-size: 20
   jpa:
     hibernate:
       ddl-auto: update
@@ -32,6 +35,9 @@ management:
     health:
       show-details: always
 
+logging:
+  file:
+    name: /Users/sameer/Desktop/logs_v1/elk-stack-covid-data-fetcher.log
 
 app:
   queue:

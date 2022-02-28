@@ -23,7 +23,7 @@ public class UserInfo implements Serializable {
     private String pincode;
     @Column(name="phone_number")
     private String userPhoneNumber;
-    @Column(name="email")
+    @Column(name="email",unique = true)
     private String userEmail;
     @Column(name="name")
     private String userName;

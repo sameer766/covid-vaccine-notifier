@@ -32,3 +32,6 @@ resilience4j:
       service:
         maxWaitDuration: 3000
         maxConcurrentCalls: 5
+logging:
+  file:
+    name: /Users/sameer/Desktop/logs_v1/elk-stack-email-service.log

@@ -59,6 +59,7 @@ public class StorageService {
         try {
             FileOutputStream fileOutputStream = new FileOutputStream(convertedFile);
             fileOutputStream.write(multipartFile.getBytes());
+            fileOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

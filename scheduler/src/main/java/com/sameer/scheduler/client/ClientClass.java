@@ -36,10 +36,9 @@ public class ClientClass {
     try {
       JobGeneric jobGeneric=new JobGeneric("job"+(++GENERIC_CLASS_COUNT));
       className1= (Class<? extends Job>) jobGeneric.getClassName();
-    } catch (IllegalAccessException e) {
+    } catch (IllegalAccessException | InstantiationException e) {
       e.printStackTrace();
-    } catch (InstantiationException e) {
-      e.printStackTrace();
+      return ;
     }
     timerService.schedule(className1, timerInfo);
   }
