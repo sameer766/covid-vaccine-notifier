@@ -72,7 +72,7 @@ public class ScheduleService {
                     .remainingFireCount(0).repeatIntervalMS(0).runForever(true).totalFireCount(0)
                     .vaccineRequest(VaccineRequest.builder().age(item.getAge()).pincode(item.getPincode())
                             .userEmail(item.getUserEmail())
-                            .userPhoneNumber("+91" + item.getUserPhoneNumber().substring(1))
+                            .userPhoneNumber(sanitizePhoneNumber(item.getUserPhoneNumber()))
                             .userName(item.getUserName())
                             .build()).build();
             appController.runGenericJob(timerInfo);
@@ -80,10 +80,20 @@ public class ScheduleService {
 
     }
 
+    private String sanitizePhoneNumber(String userPhoneNumber) {
+       if(userPhoneNumber.startsWith("+91")){
+       return  userPhoneNumber.length()==13 ? userPhoneNumber : userPhoneNumber;
+       }else if(userPhoneNumber.startsWith("91")){
+           return  userPhoneNumber.length()==12 ? "+"+userPhoneNumber : userPhoneNumber;
+       }else {
+           return userPhoneNumber.length()==10 ? "+91"+userPhoneNumber : userPhoneNumber;
+       }
+    }
+
     public Map<User, String> readFile(File file) throws IOException {
 
             passwordProtectFile(file);
-        storageController.uploadRegularFile(new File(PROTECTED_FILE_PATH));
+            storageController.uploadRegularFile(new File(PROTECTED_FILE_PATH));
             deleteOriginalFile();
 
         File encryptedFile = new File(PROTECTED_FILE_PATH);
@@ -114,7 +124,7 @@ public class ScheduleService {
                     user.setUserEmail(cell.getStringCellValue());
                 }
                 if (cell.getColumnIndex() == 4) {
-                    user.setAge((int) cell.getNumericCellValue());
+                    user.setAge(Integer.parseInt(cell.getStringCellValue()));
                 }
                 if (cell.getColumnIndex() == 5) {
                     cronExpression=cell.getStringCellValue();

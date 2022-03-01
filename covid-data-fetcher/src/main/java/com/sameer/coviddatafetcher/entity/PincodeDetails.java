@@ -9,7 +9,7 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "pincode")
+@Table(name = "cowin_static_data")
 @Getter
 @Setter
 public class PincodeDetails implements Serializable {

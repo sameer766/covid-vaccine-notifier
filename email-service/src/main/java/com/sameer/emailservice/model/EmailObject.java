@@ -11,7 +11,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "email_sent")
+@Table(name = "email_log")
 @Builder
 public class EmailObject {
 
