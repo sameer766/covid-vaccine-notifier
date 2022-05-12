@@ -26,6 +26,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ExecutorService;
@@ -114,7 +115,7 @@ public class VaccineService {
                                     .isAvailable(isAvailable)
                                     .vaccine(session.getVaccine())
                                     .date(session.getDate())
-                                    .slots(session.getSlots())
+                                    .slots(buildSlots(session.getSlots()))
                                     .build();
                         }
                     }
@@ -124,6 +125,14 @@ public class VaccineService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private List<String> buildSlots(List<Slots> slots) {
+        List<String> response=new LinkedList<>();
+        slots.forEach(slot -> {
+            response.add("At time " + slot.getTime() + " with available seats " + slot.getSeats());
+        });
+        return response;
     }
 
     public Future<Boolean> sendSms(Integer requestId, VaccineRequest vaccineRequest, String message) {
