@@ -35,3 +35,7 @@ resilience4j:
 logging:
   file:
     name: /Users/sameer/Desktop/logs_v1/elk-stack-email-service.log
+
+server:
+  ssl:
+    enabled: false

@@ -42,3 +42,6 @@ app:
     email:
     sms:
 
+server:
+  ssl:
+    enabled: false

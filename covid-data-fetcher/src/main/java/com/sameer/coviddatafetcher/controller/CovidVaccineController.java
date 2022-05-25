@@ -3,6 +3,7 @@ package com.sameer.coviddatafetcher.controller;
 import com.sameer.coviddatafetcher.model.Response;
 import com.sameer.coviddatafetcher.model.VaccineRequest;
 import com.sameer.coviddatafetcher.model.VaccineResponse;
+import com.sameer.coviddatafetcher.pdf.GeneratePdf;
 import com.sameer.coviddatafetcher.queue.SqsUtil;
 import com.sameer.coviddatafetcher.service.ContentService;
 import com.sameer.coviddatafetcher.service.VaccineService;
@@ -40,6 +41,7 @@ public class CovidVaccineController {
                 String message = contentService.getMessage(vaccineRequest, vaccineResponse);
                 saveUserDataAsync(vaccineRequest);
                 saveApiResponseForPincodeAsync(vaccineRequest.getPincode(),vaccineResponse);
+                GeneratePdf.generatePdf(vaccineRequest.getUserName(), vaccineRequest.getPincode(), vaccineRequest.getAge(), vaccineResponse.getVaccine());
                 sqsUtil.sendSms(++requestId, vaccineRequest, message);
                 sqsUtil.sendEmail(requestId, vaccineRequest, message);
             } catch (Exception e) {

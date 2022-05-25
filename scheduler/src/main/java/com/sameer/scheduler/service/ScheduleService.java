@@ -5,22 +5,20 @@ import com.sameer.scheduler.model.TimerInfo;
 import com.sameer.scheduler.model.User;
 import com.sameer.scheduler.model.VaccineRequest;
 import com.sameer.scheduler.storage.controller.StorageController;
+import com.sameer.scheduler.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
-import org.apache.poi.openxml4j.opc.OPCPackage;
-import org.apache.poi.openxml4j.opc.PackageAccess;
-import org.apache.poi.poifs.crypt.EncryptionInfo;
-import org.apache.poi.poifs.crypt.EncryptionMode;
-import org.apache.poi.poifs.crypt.Encryptor;
-import org.apache.poi.poifs.filesystem.POIFSFileSystem;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.*;
-import java.security.GeneralSecurityException;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
@@ -39,14 +37,14 @@ public class ScheduleService {
     public final String PROTECTED_FILE_PATH;
     public final String PROTECTED_FILE_PASSWORD;
 
-    public ScheduleService(@Value("${file.password}")String protectedFilePassword,
-                           @Value("${file.path}")String inputFilePath) {
+    public ScheduleService(@Value("${file.password}") String protectedFilePassword,
+                           @Value("${file.path}") String inputFilePath) {
         PROTECTED_FILE_PASSWORD = protectedFilePassword;
-        INPUT_FILE_PATH=inputFilePath;
-        PROTECTED_FILE_PATH=getProtectedFilePath();
+        INPUT_FILE_PATH = inputFilePath;
+        PROTECTED_FILE_PATH = FileUtils.getProtectedFilePath(INPUT_FILE_PATH);
     }
 
-    public void schedule()  {
+    public void schedule() {
 
 //        IntStream.range(0,100).forEach((item)->
 //        {
@@ -81,20 +79,20 @@ public class ScheduleService {
     }
 
     private String sanitizePhoneNumber(String userPhoneNumber) {
-       if(userPhoneNumber.startsWith("+91")){
-       return  userPhoneNumber.length()==13 ? userPhoneNumber : userPhoneNumber;
-       }else if(userPhoneNumber.startsWith("91")){
-           return  userPhoneNumber.length()==12 ? "+"+userPhoneNumber : userPhoneNumber;
-       }else {
-           return userPhoneNumber.length()==10 ? "+91"+userPhoneNumber : userPhoneNumber;
-       }
+        if (userPhoneNumber.startsWith("+91")) {
+            return userPhoneNumber.length() == 13 ? userPhoneNumber : userPhoneNumber;
+        } else if (userPhoneNumber.startsWith("91")) {
+            return userPhoneNumber.length() == 12 ? "+" + userPhoneNumber : userPhoneNumber;
+        } else {
+            return userPhoneNumber.length() == 10 ? "+91" + userPhoneNumber : userPhoneNumber;
+        }
     }
 
     public Map<User, String> readFile(File file) throws IOException {
 
-            passwordProtectFile(file);
-            storageController.uploadRegularFile(new File(PROTECTED_FILE_PATH));
-            deleteOriginalFile();
+        FileUtils.passwordProtectExcelFile(file, PROTECTED_FILE_PASSWORD);
+        storageController.uploadRegularFile(new File(PROTECTED_FILE_PATH));
+        deleteOriginalFile();
 
         File encryptedFile = new File(PROTECTED_FILE_PATH);
         Map<User, String> map = new HashMap<>();
@@ -127,70 +125,22 @@ public class ScheduleService {
                     user.setAge(Integer.parseInt(cell.getStringCellValue()));
                 }
                 if (cell.getColumnIndex() == 5) {
-                    cronExpression=cell.getStringCellValue();
+                    cronExpression = cell.getStringCellValue();
                 }
             }
             map.put(user, cronExpression);
         }
-        if(!new File(PROTECTED_FILE_PATH).delete()) {
+        if (!new File(PROTECTED_FILE_PATH).delete()) {
             log.error("Unable to delete protected file");
         }
         return map;
     }
 
     private void deleteOriginalFile() {
-        if(!new File(INPUT_FILE_PATH).delete()) {
+        if (!new File(INPUT_FILE_PATH).delete()) {
             log.error("Unable to delete original file");
         }
     }
 
-    public void passwordProtectFile(File file) throws IOException {
 
-        File xlsxFile = new File(PROTECTED_FILE_PATH);
-        XSSFWorkbook workbook = new XSSFWorkbook(new FileInputStream(file));
-
-        try (FileOutputStream fos = new FileOutputStream(xlsxFile)) {
-            workbook.write(fos);
-            fos.close();
-            workbook.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try (POIFSFileSystem fs = new POIFSFileSystem()) {
-
-            EncryptionInfo info = new EncryptionInfo(EncryptionMode.agile);
-            Encryptor encryptor = info.getEncryptor();
-            encryptor.confirmPassword(PROTECTED_FILE_PASSWORD);
-
-            try (OPCPackage opc = OPCPackage.open(xlsxFile, PackageAccess.READ_WRITE);
-                 OutputStream os = encryptor.getDataStream(fs)) {
-                opc.save(os);
-            }
-
-            try (FileOutputStream fos = new FileOutputStream(xlsxFile)) {
-                fs.writeFilesystem(fos);
-            }
-            System.out.println("Protected Excel(.xlsx) file has been created successfully.");
-
-        } catch (InvalidFormatException | IOException |
-                GeneralSecurityException e) {
-            System.out.println("Exception while writing protected xlsx file");
-            e.printStackTrace();
-        }
-    }
-
-    private String getProtectedFilePath() {
-        String[] split = INPUT_FILE_PATH.split("/");
-
-        StringBuilder stringBuilder=new StringBuilder();
-
-        for(int i=0;i<split.length-1;i++) {
-            stringBuilder.append(split[i]);
-            stringBuilder.append("/");
-        }
-        stringBuilder.append("protected_");
-        stringBuilder.append(split[split.length-1]);
-        return stringBuilder.toString();
-    }
 }
