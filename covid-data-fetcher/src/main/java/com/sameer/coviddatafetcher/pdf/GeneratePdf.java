@@ -13,28 +13,29 @@ import com.itextpdf.text.pdf.PdfPTable;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
 import com.itextpdf.text.pdf.PdfWriter;
-import com.sameer.scheduler.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.Locale;
 
 @Component
 @Slf4j
 public class GeneratePdf {
 
-
     private static String INPUT_FILE;
     private static String USER_RESPONSE_FILE;
     private static final int X_COORDINATE = 50;
 
-    public static void generatePdf(String username, String pincode,int age, String vaccineName) throws DocumentException, IOException {
+    public static void generatePdf(String username, String pincode, int age, String vaccineName) throws DocumentException, IOException {
+        username = camelCaseUserName(username);
         generateDoc(username, pincode, vaccineName);
         if (!generateSignatureAndDeleteFile(username, pincode, age)) {
             log.error("Error while deleting file");
@@ -79,9 +80,20 @@ public class GeneratePdf {
         document.close();
     }
 
-    private static boolean generateSignatureAndDeleteFile(String username,String pincode, int age) throws IOException, DocumentException {
+    private static String camelCaseUserName(String username) {
+        String[] split = username.split("\\s+");
+        StringBuilder stringBuilder=new StringBuilder();
+        Arrays.asList(split).forEach(word->{
+            String firstChar = String.valueOf(word.charAt(0)).toUpperCase(Locale.ROOT);
+            stringBuilder.append(firstChar + word.substring(1));
+            stringBuilder.append("_");
+        });
+        return stringBuilder.substring(0,stringBuilder.length()-1).toString();
+    }
+
+    private static boolean generateSignatureAndDeleteFile(String username, String pincode, int age) throws IOException, DocumentException {
         PdfReader pdfReader = new PdfReader(INPUT_FILE);
-        USER_RESPONSE_FILE = "/Users/sameer/Desktop/pdfs/" + username + "_" + Timestamp.from(Instant.now()) + "_.pdf";
+        USER_RESPONSE_FILE = "/Users/sameer/Desktop/pdfs/" + username + "_" + DateTimeFormatter.ofPattern("yyyy-MM-dd_HH-mm-ss").format(LocalDateTime.now()) + ".pdf";
         FileOutputStream fileOutputStream = new FileOutputStream(USER_RESPONSE_FILE);
         PdfStamper stamper = new PdfStamper(pdfReader, fileOutputStream);
         BaseFont bf = BaseFont.createFont(BaseFont.COURIER, BaseFont.CP1257, BaseFont.EMBEDDED);
@@ -102,7 +114,7 @@ public class GeneratePdf {
         stamper.close();
         pdfReader.close();
         fileOutputStream.close();
-        FileUtils.passwordProtectPdfFile(new File(USER_RESPONSE_FILE), String.valueOf(age).concat(pincode));
+        com.sameer.scheduler.utils.FileUtils.passwordProtectPdfFile(new File(USER_RESPONSE_FILE), String.valueOf(age).concat(pincode));
         return deleteFile();
     }
 

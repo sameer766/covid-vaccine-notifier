@@ -1,5 +1,6 @@
 package com.sameer.scheduler.service;
 
+
 import com.sameer.scheduler.controller.AppController;
 import com.sameer.scheduler.model.TimerInfo;
 import com.sameer.scheduler.model.User;
@@ -7,20 +8,10 @@ import com.sameer.scheduler.model.VaccineRequest;
 import com.sameer.scheduler.storage.controller.StorageController;
 import com.sameer.scheduler.utils.FileUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 @Service
@@ -33,16 +24,8 @@ public class ScheduleService {
     @Autowired
     StorageController storageController;
 
-    public final String INPUT_FILE_PATH;
-    public final String PROTECTED_FILE_PATH;
-    public final String PROTECTED_FILE_PASSWORD;
-
-    public ScheduleService(@Value("${file.password}") String protectedFilePassword,
-                           @Value("${file.path}") String inputFilePath) {
-        PROTECTED_FILE_PASSWORD = protectedFilePassword;
-        INPUT_FILE_PATH = inputFilePath;
-        PROTECTED_FILE_PATH = FileUtils.getProtectedFilePath(INPUT_FILE_PATH);
-    }
+    @Autowired
+    FileUtils fileUtils;
 
     public void schedule() {
 
@@ -59,7 +42,7 @@ public class ScheduleService {
 //        });
         Map<User, String> cronUserDetailsMap = null;
         try {
-            cronUserDetailsMap = readFile(new File(INPUT_FILE_PATH));
+            cronUserDetailsMap = fileUtils.readFile();
         } catch (IOException e) {
             e.printStackTrace();
             return;
@@ -87,60 +70,5 @@ public class ScheduleService {
             return userPhoneNumber.length() == 10 ? "+91" + userPhoneNumber : userPhoneNumber;
         }
     }
-
-    public Map<User, String> readFile(File file) throws IOException {
-
-        FileUtils.passwordProtectExcelFile(file, PROTECTED_FILE_PASSWORD);
-        storageController.uploadRegularFile(new File(PROTECTED_FILE_PATH));
-        deleteOriginalFile();
-
-        File encryptedFile = new File(PROTECTED_FILE_PATH);
-        Map<User, String> map = new HashMap<>();
-        String cronExpression = null;
-        Workbook wb = WorkbookFactory.create(new FileInputStream(encryptedFile), PROTECTED_FILE_PASSWORD);
-        Sheet sheet = wb.getSheetAt(0);
-        Iterator<Row> iterator = sheet.iterator();
-        while (iterator.hasNext()) {
-            Row row = iterator.next();
-            if (row.getRowNum() == 0) {
-                continue;
-            }
-            Iterator<Cell> cellIterator = row.cellIterator();
-            User user = new User();
-            while (cellIterator.hasNext()) {
-                Cell cell = cellIterator.next();
-                if (cell.getColumnIndex() == 0) {
-                    user.setPincode(cell.getStringCellValue());
-                }
-                if (cell.getColumnIndex() == 1) {
-                    user.setUserName(cell.getStringCellValue());
-                }
-                if (cell.getColumnIndex() == 2) {
-                    user.setUserPhoneNumber(cell.getStringCellValue());
-                }
-                if (cell.getColumnIndex() == 3) {
-                    user.setUserEmail(cell.getStringCellValue());
-                }
-                if (cell.getColumnIndex() == 4) {
-                    user.setAge(Integer.parseInt(cell.getStringCellValue()));
-                }
-                if (cell.getColumnIndex() == 5) {
-                    cronExpression = cell.getStringCellValue();
-                }
-            }
-            map.put(user, cronExpression);
-        }
-        if (!new File(PROTECTED_FILE_PATH).delete()) {
-            log.error("Unable to delete protected file");
-        }
-        return map;
-    }
-
-    private void deleteOriginalFile() {
-        if (!new File(INPUT_FILE_PATH).delete()) {
-            log.error("Unable to delete original file");
-        }
-    }
-
 
 }

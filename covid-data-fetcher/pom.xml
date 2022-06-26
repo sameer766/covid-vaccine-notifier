@@ -115,13 +115,12 @@
             <groupId>com.hazelcast</groupId>
             <artifactId>hazelcast-spring</artifactId>
         </dependency>
+
         <dependency>
-            <groupId>org.apache.poi</groupId>
-            <artifactId>poi</artifactId>
-            <version>5.0.0</version>
-            <scope>compile</scope>
+            <groupId>org.springframework.kafka</groupId>
+            <artifactId>spring-kafka</artifactId>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/com.itextpdf/itextpdf -->
+
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>itextpdf</artifactId>
@@ -131,6 +130,8 @@
             <groupId>com.sameer</groupId>
             <artifactId>scheduler</artifactId>
             <version>0.0.1-SNAPSHOT</version>
+            <scope>system</scope>
+            <systemPath>/Users/sameer/Documents/covid-vaccine-notifier/scheduler/target/Scheduler.jar</systemPath>
         </dependency>
 
     </dependencies>
