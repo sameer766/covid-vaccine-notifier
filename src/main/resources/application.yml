@@ -1,0 +1,23 @@
+server:
+  port: 9296
+
+spring:
+  application:
+    name: cloud-config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/sameer766/config-server
+          clone-on-start: true
+
+          eureka:
+            client:
+              register-with-eureka: true
+              fetch-registry: true
+              service-url:
+                default-zone: http://localhost:8761/eureka/
+            instance:
+              hostname: localhost
+          username: sameer766
+          password:
