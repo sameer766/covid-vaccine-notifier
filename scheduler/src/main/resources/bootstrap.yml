@@ -4,6 +4,8 @@ covid:
 spring:
   application:
     name: scheduler
+  zipkin:
+    base-url: http://localhost:9411/
   quartz:
     job-store-type: jdbc
   datasource:
@@ -16,6 +18,9 @@ spring:
       token: 00000000-0000-0000-0000-000000000000
       scheme: http
       kv:
+      enabled: true
+    config:
+      uri: http://localhost:9296
       enabled: true
   servlet:
     multipart:

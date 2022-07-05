@@ -1,6 +1,7 @@
 package com.sameer.coviddatafetcher.events;
 
 import com.sameer.coviddatafetcher.queue.QueueRequest;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
@@ -19,7 +20,8 @@ public class SmsSendingEventListener implements ApplicationListener<SMSSendingEv
         handleMessageSendingCallbackResponse(message, queueRequest);
     }
 
-    private void handleMessageSendingCallbackResponse(Future<Boolean> message, QueueRequest queueRequest) {
+    @CircuitBreaker(name = "sendsms", fallbackMethod = "handleMessageSendingCallbackResponseFallback")
+    public void handleMessageSendingCallbackResponse(Future<Boolean> message, QueueRequest queueRequest) {
         try {
             if (message.get()) {
                 log.info("sending {} notification success", queueRequest.getSource());
@@ -32,4 +34,9 @@ public class SmsSendingEventListener implements ApplicationListener<SMSSendingEv
             e.printStackTrace();
         }
     }
+    public void handleMessageSendingCallbackResponseFallback(Exception e) {
+        System.out.println("This is a fallback method");
+    }
+
+
 }

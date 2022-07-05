@@ -4,12 +4,17 @@ server.port: 8081
 spring:
   application:
     name: covid-data-fetcher
+  zipkin:
+    base-url: http://localhost:9411/
   cloud:
     vault:
       uri: http://localhost:8200
       token: 00000000-0000-0000-0000-000000000000
       scheme: http
       kv:
+      enabled: true
+    config:
+      uri: http://localhost:9296
       enabled: true
   datasource:
     username: root
@@ -35,6 +40,20 @@ management:
     health:
       show-details: always
 
+resilience4j:
+  circuitbreaker:
+   instances:
+    sendsms:
+      registerHealthIndicator: true
+      eventConsumerBufferSize: 100
+      failureRateThreshold: 50
+      minimumNumberOfCalls: 5
+      automaticTransitionFromOpenToHalfOpenEnabled: true
+      waitDurationInOpenState: 5s
+      permittedNumberOfCallsInHalfOpenState: 3
+      slidingWindowType: COUNT_BASED
+      slidingWindowSize: 10
+
 logging:
   file:
     name: /Users/sameer/Desktop/logs_v1/elk-stack-covid-data-fetcher.log
@@ -48,5 +67,5 @@ server:
   ssl:
     enabled: false
 application:
-    bucket:
-      name: user-data-storage
+  bucket:
+    name: user-data-storage
