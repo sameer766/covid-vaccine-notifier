@@ -1,0 +1,46 @@
+spring:
+  application:
+    name: email-service
+  zipkin:
+    base-url: http://localhost:9411/
+  cloud:
+    vault:
+      uri: http://localhost:8200
+      token: 00000000-0000-0000-0000-000000000000
+      scheme: http
+      kv:
+      enabled: true
+    config:
+      uri: http://localhost:9296
+      enabled: true
+  datasource:
+    username: root
+    url: jdbc:mysql://localhost:3306/covid_data?autoReconnect=true
+    database-platform: org.hibernate.dialect.MySQL5InnoDBDialect
+    driverClassName: com.mysql.cj.jdbc.Driver
+    hikari:
+      connection-timeout: 300000
+      maximum-pool-size: 20
+  jpa:
+    hibernate:
+      ddl-auto: update
+server.port: 8083
+  #  thread-pool-bulkhead:
+  #    instances:
+  #      service:
+#        maxThreadPoolSize: 1
+#        coreThreadPoolSize: 1
+#        queueCapacity: 1
+resilience4j:
+  bulkhead:
+    instances:
+      service:
+        maxWaitDuration: 3000
+        maxConcurrentCalls: 5
+logging:
+  file:
+    name: /Users/sameer/Desktop/logs_v1/elk-stack-email-service.log
+
+server:
+  ssl:
+    enabled: false
